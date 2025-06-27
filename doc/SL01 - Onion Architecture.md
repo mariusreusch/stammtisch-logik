@@ -1,4 +1,4 @@
-# Stammtisch Onion Architecture
+# Onion Architecture
 
 **Onion Architecture Rings:**
 

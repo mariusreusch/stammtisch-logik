@@ -14,11 +14,6 @@ What is the change that we're proposing and/or doing?
 
 ---
 
-## Affected Apps
-The onion architecture principles should only be applied to applications/modules with real business logic. Currently, this includes **ACM-UC** and **ACM-PP**. Technical-driven applications like **Wall-E** or **Ed** are considered "details" from an onion architecture perspective; they would be part of the outermost ring if included in the actual business applications. These technical applications do **not** need to follow the onion architecture principles.
-
----
-
 ## Our "Standard" Objects (Categorized by Ring)
 
 **Onion Architecture Diagram:**

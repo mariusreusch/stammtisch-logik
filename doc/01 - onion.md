@@ -21,7 +21,31 @@ The onion architecture principles should only be applied to applications/modules
 
 ## Our "Standard" Objects (Categorized by Ring)
 
-![onion-1.png](images/onion-1.png)
+**Onion Architecture Diagram:**
+
+The onion architecture consists of four concentric rings, with dependencies flowing inward:
+
+1. **Domain (Core/Innermost Ring)**: Contains the business logic core
+   - Aggregates: Main domain entry points
+   - Entities: Objects with identity within aggregates
+   - Value Objects: Immutable objects representing values
+
+2. **Application Ring**: Orchestrates domain objects and defines use cases
+   - Use Cases: Application-specific business rules
+   - Use Case Objects: Input/output objects for use cases
+   - Ports: Interfaces for external dependencies (following dependency inversion)
+
+3. **Interface Ring**: Entry points to the application
+   - REST Controllers: HTTP endpoints
+   - Event Listeners: Message-based entry points
+
+4. **Infrastructure Ring (Outermost)**: External concerns and technical implementations
+   - Domain Repository Implementations: Data persistence logic
+   - JPA Repositories: Database access layer
+   - DTOs: Data transfer objects
+   - Adapters: Implementations of application ports
+
+Each inner ring can only depend on rings inside it, never on outer rings. This ensures that business logic remains independent of technical implementation details.
 
 ### Domain
 - **Aggregate**: Main entry point to a domain. Consists of Entities and Value Objects but does not contain object references to other Aggregates. Other Aggregates should only be referenced via ID.

@@ -1,0 +1,38 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '3.1.0'
+    id 'io.spring.dependency-management' version '1.1.0'
+}
+
+group = 'com.stammtisch'
+version = '1.0-SNAPSHOT'
+sourceCompatibility = '17'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // Spring Boot dependencies for web server
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+
+    // Spring Boot Actuator for monitoring and management
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+
+    // Model Context Protocol Java SDK
+    implementation("io.modelcontextprotocol.sdk:mcp:0.10.0")
+
+    // GitHub API client
+    implementation 'org.kohsuke:github-api:1.314'
+
+    // Lombok for reducing boilerplate code
+    compileOnly 'org.projectlombok:lombok:1.18.26'
+    annotationProcessor 'org.projectlombok:lombok:1.18.26'
+
+    // Test dependencies
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
+
+test {
+    useJUnitPlatform()
+}

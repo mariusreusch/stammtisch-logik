@@ -1,22 +1,30 @@
-# Stammtisch Onion Architecture
+# Onion Architecture
 
-## Context
-What is the issue that is motivating this decision or change?
+**Onion Architecture Rings:**
 
-Currently, we have many services, repositories, and REST controllers that contain business logic. There is no single point to consistently persist data.
+The onion architecture consists of four concentric rings, with dependencies flowing inward:
 
----
+1. **Domain (Core/Innermost Ring)**: Contains the business logic core
+   - Aggregates: Main domain entry points
+   - Entities: Objects with identity within aggregates
+   - Value Objects: Immutable objects representing values
 
-## Proposal
-What is the change that we're proposing and/or doing?
+2. **Application Ring**: Orchestrates domain objects and defines use cases
+   - Use Cases: Application-specific business rules
+   - Use Case Objects: Input/output objects for use cases
+   - Ports: Interfaces for external dependencies (following dependency inversion)
 
-<!-- Add your proposal details here -->
+3. **Interface Ring**: Entry points to the application
+   - REST Controllers: HTTP endpoints
+   - Event Listeners: Message-based entry points
 
----
+4. **Infrastructure Ring (Outermost)**: External concerns and technical implementations
+   - Domain Repository Implementations: Data persistence logic
+   - JPA Repositories: Database access layer
+   - DTOs: Data transfer objects
+   - Adapters: Implementations of application ports
 
-## Our "Standard" Objects (Categorized by Ring)
-
-![onion-1.png](images/onion-1.png)
+Each inner ring can only depend on rings inside it, never on outer rings. This ensures that business logic remains independent of technical implementation details.
 
 ### Domain
 - **Aggregate**: Main entry point to a domain. Consists of Entities and Value Objects but does not contain object references to other Aggregates. Other Aggregates should only be referenced via ID.
@@ -51,7 +59,7 @@ public class QualityChangedEventRestController implements QualityChangedEventApi
 
     private final EventProcessor eventProcessor;
     private final ChangeQualityUseCase changeQualityUseCase;
- 
+
     @Override
     @Retryable(include = {CannotAcquireEventLockException.class, RetryableConflictException.class}, maxAttempts = 3, backoff = @Backoff(delay = 2000))
     public ResponseEntity<Void> handleQualityChangeEvent(@RequestBody QualityChangedEventDto qualityChangedEventDto) {
@@ -62,7 +70,7 @@ public class QualityChangedEventRestController implements QualityChangedEventApi
                         .build()
         );
         eventProcessor.process(qualityChange, qualityChangedEventDto);
- 
+
         return noContent().build();
     }
 }
@@ -80,20 +88,20 @@ class StammtischLoginRepositoryImpl implements StammtischLoginRepository {
     private final SubjectHierarchyJpaRepository subjectHierarchyJpaRepository;
     private final FederatedStammtischLoginRepositoryImpl federatedStammtischLoginRepository;
     private final EntityManager entityManager;
- 
+
     @Override
     public Optional<StammtischLogin> findByStammtischLoginId(StammtischLoginId stammtischLoginId) {
         // implementation
     }
- 
+
     @Override
     public void save(StammtischLogin stammtischLogin) {
         SubjectEntity subjectEntity = saveSubjectAttributesAndRelations(stammtischLogin);
- 
+
         saveFederations(stammtischLogin, subjectEntity);
         saveRoleAssignments(stammtischLogin);
     }
- 
+
     @Override
     public void delete(StammtischLoginId stammtischLoginId) {
         // implementation
@@ -108,37 +116,37 @@ class StammtischLoginRepositoryImpl implements StammtischLoginRepository {
 public class ChangeQualityUseCase {
 
     private final StammtischLoginRepository stammtischLoginRepository;
- 
+
     @Data
     public static class Request {
         private final StammtischLoginId stammtischLoginId;
         private final QualityLevel qualityLevel;
     }
- 
+
     @Transactional
     public void invoke(Request request) {
         Optional<StammtischLogin> stammtischLoginOptional = stammtischLoginRepository.findByStammtischLoginId(request.stammtischLoginId);
- 
+
         if (stammtischLoginOptional.isEmpty()) {
             log("Quality change is not processed because the affected StammtischLogin does not exist.", request);
             return;
         }
- 
+
         StammtischLogin stammtischLogin = stammtischLoginOptional.get();
- 
+
         if (!stammtischLogin.isRes()) {
             log("Quality change is not processed because the affected StammtischLogin is not in segment RES.", request);
             return;
         }
- 
+
         stammtischLogin.changeQualityTo(request.qualityLevel);
- 
+
         stammtischLoginRepository.save(stammtischLogin);
- 
+
         log("Successfully changed quality", request);
- 
+
     }
- 
+
     //...
 }
 ```
@@ -152,22 +160,22 @@ public class StammtischLogin implements Validatable {
     private ContactId contactId;
     private Services services;
     private FederatedStammtischLogins federatedStammtischLogins;
-	
+
     //...
-     
+
     public void changeQualityLevelTo(QualityLevel qualityLevel) {
        // imple
     }
- 
+
     //...
 }
 
 public interface StammtischLoginRepository {
 
     Optional<StammtischLogin> findByStammtischLoginId(StammtischLoginId stammtischLoginId);
- 
+
     void save(StammtischLogin stammtischLogin);
- 
+
     void delete(StammtischLoginId stammtischLoginId);
 }
 ```

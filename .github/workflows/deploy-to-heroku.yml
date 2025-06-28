@@ -23,12 +23,12 @@ jobs:
       uses: actions/cache@v3
       with:
         path: ~/.gradle/caches
-        key: gradle-${{ runner.os }}-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+        key: gradle-${{ runner.os }}-${{ hashFiles('mcp/**/*.gradle*', 'mcp/**/gradle-wrapper.properties') }}
         restore-keys: |
           gradle-${{ runner.os }}
 
     - name: Build with Gradle
-      run: ./gradlew build
+      run: cd mcp && ./gradlew build
 
   deploy:
     needs: build
@@ -45,8 +45,10 @@ jobs:
 
     - name: Build and Push Docker Image to Heroku
       run: |
+        cd mcp
         heroku container:push web -a ${{ secrets.HEROKU_APP_NAME }}
 
     - name: Release the Heroku App
       run: |
+        cd mcp
         heroku container:release web -a ${{ secrets.HEROKU_APP_NAME }}

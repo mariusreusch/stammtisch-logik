@@ -1,31 +1,32 @@
 plugins {
     id 'java'
-    id 'org.springframework.boot' version '3.4.2'
-    id 'io.spring.dependency-management' version '1.1.4'
+    id 'org.springframework.boot' version '3.5.3'
+    id 'io.spring.dependency-management' version '1.1.7'
 }
 
 group = 'com.stammtisch'
 version = '1.0-SNAPSHOT'
-sourceCompatibility = '21'
 
-repositories {
-    mavenCentral()
-    maven {
-        url 'https://repo.spring.io/milestone'
-        name 'Spring Milestones'
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
     }
 }
 
+repositories {
+    mavenCentral()
+}
+
+ext {
+    set('springAiVersion', "1.0.0")
+}
+
 dependencies {
-    // Spring Boot dependencies for web server
-    implementation 'org.springframework.boot:spring-boot-starter-web'
 
-    // Spring Boot Actuator for monitoring and management
-    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'org.springframework.ai:spring-ai-starter-mcp-server-webflux'
 
-    // Spring AI MCP integration - correct dependencies
-    implementation 'org.springframework.ai:spring-ai-mcp-server-spring-boot-starter:1.0.0-M6'
-    implementation 'org.springframework.ai:spring-ai-mcp:1.0.0-M6'
+
+
 
     // GitHub API client
     implementation 'org.kohsuke:github-api:1.319'
@@ -37,6 +38,14 @@ dependencies {
     // Test dependencies
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
+
+
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.ai:spring-ai-bom:${springAiVersion}"
+    }
+}
+
 
 test {
     useJUnitPlatform()

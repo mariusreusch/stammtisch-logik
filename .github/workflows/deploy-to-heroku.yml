@@ -1,0 +1,52 @@
+name: Build and Deploy to Heroku
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up JDK 21
+      uses: actions/setup-java@v3
+      with:
+        java-version: '21'
+        distribution: 'temurin'
+
+    - name: Cache Gradle packages
+      uses: actions/cache@v3
+      with:
+        path: ~/.gradle/caches
+        key: gradle-${{ runner.os }}-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+        restore-keys: |
+          gradle-${{ runner.os }}
+
+    - name: Build with Gradle
+      run: ./gradlew build
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Login to Heroku Container Registry
+      run: heroku container:login
+      env:
+        HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+
+    - name: Build and Push Docker Image to Heroku
+      run: |
+        heroku container:push web -a ${{ secrets.HEROKU_APP_NAME }}
+
+    - name: Release the Heroku App
+      run: |
+        heroku container:release web -a ${{ secrets.HEROKU_APP_NAME }}

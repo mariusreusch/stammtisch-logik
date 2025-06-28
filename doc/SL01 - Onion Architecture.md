@@ -30,20 +30,26 @@ Each inner ring can only depend on rings inside it, never on outer rings. This e
 - **Aggregate**: Main entry point to a domain. Consists of Entities and Value Objects but does not contain object references to other Aggregates. Other Aggregates should only be referenced via ID.
 - **Entity**: Part of an Aggregate. Can only be modified via the aggregate. Entities have an identity (e.g., Role Assignment Id).
 - **Value Objects**: Small objects that represent values like Scn, SubjectId, etc. Can be used within the whole application. Value objects have no own identity.
+- **Domain Repository**: There should be one Domain Repository for each Aggregate. It is the interface for persisting and loading aggregates. Only the interface is part of the domain ring, therefore it is a special kind of a Port. The implementation is placed in the infrastructure layer.
 
 ### Application
-- **Use Case**: See ADR-06.
-- **Use Case Objects**: See ADR-06.
+- **Use Case**: See [SL02 - Use cases.md](SL02%20-%20Use%20cases.md)
+- **Use Case Objects**: See [SL02 - Use cases.md](SL02%20-%20Use%20cases.md)
 - **Port**: An interface for any kind of infrastructure or interface logic. Ports are always interfaces, responsible for decoupling between the application ring and the two outermost layers (Infrastructure and Interfaces). The application ring should not know these outer rings (Dependency Inversion). This is a key aspect of the onion architecture approach. Ports are implemented by Adapters in the Interface or Infrastructure ring. A standard purpose of a Port is the retrieval of information from peripheral systems within a Use Case (e.g., an IdpPort to fetch information from IDP, with technical details implemented in the Adapter).
 
 ### Interfaces
 - **Rest Controller**: HTTP entry point of an application.
 - **Event Listener**: Message-based entry point of an application.
+- **DTO**: Data Transfer Objects (DTOs) act as very simple data structure to exchange data between two applications or modules. They should not contain any business logic, they should only contain simple data fields. They can contain value objects to describe a type of a field.
+- **DTO Mapper** Responsible for mapping DTOs to Use Case Objects or Domain Aggregates or Domain Entities.
 
 ### Infrastructure
 - **Domain Repository Implementations**: Contains persistence and fetching logic for domain Aggregates. May reference other domain repository implementations and JpaRepositories.
 - **JpaRepository**: Simple and straightforward DB repository to persist and fetch DbEntities.
-- **DTO**: Data Transfer Object.
+- **DbEntity**: Regular JPA entities in order to persist and fetch data into and from the database. It should not contain any business logic. It should not be confused with a domain Entity nor an Aggregate. 
+- **Adapter (Port Implementation)** Implementation of a Port. Contains the technical details of a Port interface like the connection and retrieval logic for peripheral systems.
+- **DTO**: Data Transfer Objects (DTOs) act as very simple data structure to exchange data between two applications or modules. They should not contain any business logic, they should only contain simple data fields. They can contain value objects to describe a type of a field.
+- **DTO Mapper** Responsible for mapping DTOs to Use Case Objects or Domain Aggregates or Domain Entities.
 
 ---
 

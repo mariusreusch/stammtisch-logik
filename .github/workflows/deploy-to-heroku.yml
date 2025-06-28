@@ -42,6 +42,6 @@ jobs:
       - uses: akhileshns/heroku-deploy@v3.14.15 # This is the action
         with:
           heroku_api_key: ${{secrets.HEROKU_API_KEY}}
-          heroku_app_name: "protected-forest-18105"
+          heroku_app_name: "stammtisch-mcp"
           heroku_email: "sebastian@zillessen.info"
           appdir: "mcp"

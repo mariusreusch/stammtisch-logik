@@ -50,9 +50,9 @@ jobs:
     - name: Build and Push Docker Image to Heroku
       run: |
         cd mcp
-        heroku container:push web -a ${{ HEROKU_APP_NAME }}
+        heroku container:push web -a ${{ env.HEROKU_APP_NAME }}
 
     - name: Release the Heroku App
       run: |
         cd mcp
-        heroku container:release web -a ${{ HEROKU_APP_NAME }}
+        heroku container:release web -a ${{ env.HEROKU_APP_NAME }}

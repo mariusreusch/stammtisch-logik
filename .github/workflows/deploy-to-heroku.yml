@@ -11,25 +11,25 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-    - name: Set up JDK 21
-      uses: actions/setup-java@v3
-      with:
-        java-version: '21'
-        distribution: 'temurin'
+      - name: Set up JDK 21
+        uses: actions/setup-java@v3
+        with:
+          java-version: '21'
+          distribution: 'temurin'
 
-    - name: Cache Gradle packages
-      uses: actions/cache@v3
-      with:
-        path: ~/.gradle/caches
-        key: gradle-${{ runner.os }}-${{ hashFiles('mcp/**/*.gradle*', 'mcp/**/gradle-wrapper.properties') }}
-        restore-keys: |
-          gradle-${{ runner.os }}
+      - name: Cache Gradle packages
+        uses: actions/cache@v3
+        with:
+          path: ~/.gradle/caches
+          key: gradle-${{ runner.os }}-${{ hashFiles('mcp/**/*.gradle*', 'mcp/**/gradle-wrapper.properties') }}
+          restore-keys: |
+            gradle-${{ runner.os }}
 
-    - name: Build with Gradle
-      run: cd mcp && ./gradlew build
+      - name: Build with Gradle
+        run: cd mcp && ./gradlew build
 
   deploy:
     needs: build
@@ -41,7 +41,7 @@ jobs:
           curl https://cli-assets.heroku.com/install.sh | sh
       - uses: akhileshns/heroku-deploy@v3.14.15 # This is the action
         with:
-          heroku_api_key: ${{secrets.HEROKU_API_KEY}}
+          heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
           heroku_app_name: "stammtisch-mcp"
           heroku_email: "sebastian@zillessen.info"
           appdir: "mcp"

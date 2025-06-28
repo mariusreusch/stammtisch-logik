@@ -1,18 +1,19 @@
 package com.stammtisch.mcp.service;
 
-import lombok.extern.slf4j.Slf4j;
-import org.kohsuke.github.*;
-import org.springframework.stereotype.Service;
-
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+import lombok.extern.slf4j.Slf4j;
+import org.kohsuke.github.*;
+import org.springframework.stereotype.Service;
 
 @Service
 @Slf4j
 public class GitHubService {
+
     private static final String REPO_URL = "mariusreusch/stammtisch-logik";
     private static final String DEFAULT_BRANCH = "main";
     private final GitHub gitHub;
@@ -30,11 +31,15 @@ public class GitHubService {
      */
     public List<String> listGuidelineDocuments() {
         try {
-            List<GHContent> content = repository.getDirectoryContent("doc", DEFAULT_BRANCH);
-            return content.stream()
-                    .filter(file -> file.getName().endsWith(".md"))
-                    .map(GHContent::getName)
-                    .collect(Collectors.toList());
+            List<GHContent> content = repository.getDirectoryContent(
+                "doc",
+                DEFAULT_BRANCH
+            );
+            return content
+                .stream()
+                .filter(file -> file.getName().endsWith(".md"))
+                .map(GHContent::getName)
+                .collect(Collectors.toList());
         } catch (IOException e) {
             log.error("Failed to list guideline documents", e);
             return Collections.emptyList();
@@ -47,7 +52,8 @@ public class GitHubService {
     public String getDocumentContent(String path) {
         try {
             GHContent content = repository.getFileContent(path, DEFAULT_BRANCH);
-            byte[] contentBytes = Base64.getDecoder().decode(content.getContent());
+            byte[] contentBytes = Base64.getDecoder()
+                .decode(content.getContent());
             return new String(contentBytes);
         } catch (IOException e) {
             log.error("Failed to get document content for path: {}", path, e);
@@ -64,13 +70,14 @@ public class GitHubService {
             search.repo(REPO_URL);
             search.filename("*.md");
 
-            List<String> paths = search.list().toList().stream()
-                    .map(GHContent::getPath)
-                    .collect(Collectors.toList());
+            List<String> paths = new ArrayList<>();
+            for (GHContent content : search.list()) {
+                paths.add(content.getPath());
+            }
 
             log.info("Found {} markdown files in repository", paths.size());
             return paths;
-        } catch (IOException e) {
+        } catch (Exception e) {
             log.error("Failed to search markdown files", e);
             return Collections.emptyList();
         }

@@ -7,9 +7,8 @@ import ch.example.threetypesofexception.domain.Customer;
 import ch.example.threetypesofexception.domain.CustomerName;
 import ch.example.threetypesofexception.domain.CustomerRepository;
 import ch.example.threetypesofexception.domain.Title;
-import org.springframework.stereotype.Repository;
-
 import java.util.List;
+import org.springframework.stereotype.Repository;
 
 @Repository
 class CustomerRepositoryImpl implements CustomerRepository {
@@ -18,14 +17,21 @@ class CustomerRepositoryImpl implements CustomerRepository {
     public List<Customer> findByName(CustomerName customerName) {
         List<CustomerDbEntity> customerDbEntities = loadCustomersFromDatabase();
 
-        return customerDbEntities.stream()
-                .map(this::mapToDomainObject)
-                .toList();
+        return customerDbEntities
+            .stream()
+            .map(this::mapToDomainObject)
+            .collect(Collectors.toList());
     }
 
     private Customer mapToDomainObject(CustomerDbEntity customerDbEntity) {
-        Title title = Title.from(customerDbEntity.title()).orElseThrow(() -> new ConsistencyException(Problem.UNKNOWN_TITLE_FETCHED_FROM_DATABASE));
-        CustomerName customerName = new CustomerName(customerDbEntity.customerName());
+        Title title = Title.from(customerDbEntity.title()).orElseThrow(() ->
+            new ConsistencyException(
+                Problem.UNKNOWN_TITLE_FETCHED_FROM_DATABASE
+            )
+        );
+        CustomerName customerName = new CustomerName(
+            customerDbEntity.customerName()
+        );
         return new Customer(title, customerName);
     }
 
@@ -34,7 +40,10 @@ class CustomerRepositoryImpl implements CustomerRepository {
             // imagine some database access logic here
             return List.of(new CustomerDbEntity("Mister", "Test"));
         } catch (Exception exception) {
-            throw new SystemException(Problem.CUSTOMER_DATABASE_IS_NOT_AVAILABLE, exception);
+            throw new SystemException(
+                Problem.CUSTOMER_DATABASE_IS_NOT_AVAILABLE,
+                exception
+            );
         }
     }
 }

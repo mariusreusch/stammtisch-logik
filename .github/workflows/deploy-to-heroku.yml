@@ -1,6 +1,7 @@
 name: Build and Deploy to Heroku
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - master
@@ -33,26 +34,14 @@ jobs:
   deploy:
     needs: build
     runs-on: ubuntu-latest
-
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
-
-    - name: Install Heroku CLI
-      run: |
-        curl https://cli-assets.heroku.com/install.sh | sh
-
-    - name: Login to Heroku Container Registry
-      run: heroku container:login
-      env:
-        HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
-
-    - name: Build and Push Docker Image to Heroku
-      run: |
-        cd mcp
-        heroku container:push web -a ${{ env.HEROKU_APP_NAME }}
-
-    - name: Release the Heroku App
-      run: |
-        cd mcp
-        heroku container:release web -a ${{ env.HEROKU_APP_NAME }}
+      - uses: actions/checkout@v2
+      - name: Install Heroku CLI # <- IMPORTANT!!! Make sure the cli is installed before using the action
+        run: |
+          curl https://cli-assets.heroku.com/install.sh | sh
+      - uses: akhileshns/heroku-deploy@v3.14.15 # This is the action
+        with:
+          heroku_api_key: ${{secrets.HEROKU_API_KEY}}
+          heroku_app_name: "stammtisch-mcp"
+          heroku_email: "sebastian@zillessen.info"
+          appdir: "mcp"

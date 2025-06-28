@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -20,8 +21,9 @@ public class McpContextProvider {
      * @param query The search query or context request
      * @return A map containing context information
      */
+    @Tool(description = "Get stammtisch context")
     public Map<String, Object> getContext(String query) {
-        log.debug("Getting context for query: {}", query);
+        log.info("Getting context for query: {}", query);
 
         Map<String, Object> context = new HashMap<>();
         List<Map<String, String>> documents = new ArrayList<>();
@@ -77,8 +79,9 @@ public class McpContextProvider {
      * Get context specifically for guideline documents
      * @return A map containing guideline context
      */
+    @Tool(description = "Get stammtisch guidelines")
     public Map<String, Object> getGuidelineContext() {
-        log.debug("Getting guideline context");
+        log.info("Getting guideline context");
 
         Map<String, Object> context = new HashMap<>();
         List<Map<String, String>> guidelines = new ArrayList<>();
@@ -131,6 +134,7 @@ public class McpContextProvider {
      */
     public Map<String, Object> searchDocuments(String searchQuery) {
         log.debug("Searching documents for query: {}", searchQuery);
+
 
         Map<String, Object> result = new HashMap<>();
         List<Map<String, Object>> matchingDocuments = new ArrayList<>();

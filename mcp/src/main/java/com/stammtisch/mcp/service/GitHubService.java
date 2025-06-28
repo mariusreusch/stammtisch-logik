@@ -15,7 +15,7 @@ import org.springframework.stereotype.Service;
 public class GitHubService {
 
     private static final String REPO_URL = "mariusreusch/stammtisch-logik";
-    private static final String DEFAULT_BRANCH = "main";
+    private static final String DEFAULT_BRANCH = "master";
     private final GitHub gitHub;
     private final GHRepository repository;
 
@@ -52,9 +52,7 @@ public class GitHubService {
     public String getDocumentContent(String path) {
         try {
             GHContent content = repository.getFileContent(path, DEFAULT_BRANCH);
-            byte[] contentBytes = Base64.getDecoder()
-                .decode(content.getContent());
-            return new String(contentBytes);
+            return new String(content.getContent());
         } catch (IOException e) {
             log.error("Failed to get document content for path: {}", path, e);
             return "Error: Could not retrieve document content";
